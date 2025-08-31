@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            padding: 5px;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+        }
+        
+        .nav-item span {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .card-icon.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-icon.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .card-icon.warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .course-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .course-thumbnail {
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            position: relative;
+        }
+        
+        .course-info {
+            padding: 20px;
+        }
+        
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .course-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .course-duration {
+            color: #888;
+            font-size: 0.8rem;
+        }
+        
+        .course-level {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            background: #e1e5e9;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .video-player {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .video-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .video-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .video-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e1e5e9;
+            border-left: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .library-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Simulação da API
+        const mockAPI = {
+            login: (email, password) => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        if (email === 'admin@example.com' && password === 'password') {
+                            resolve({
+                                token: 'mock-jwt-token',
+                                user: { id: 1, name: 'Admin User', email: email }
+                            });
+                        } else {
+                            reject(new Error('Credenciais inválidas'));
+                        }
+                    }, 1000);
+                });
+            },
+
+            getDashboardData: () => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            totalCourses: 24,
+                            completedCourses: 8,
+                            totalVideos: 156,
+                            watchedVideos: 45,
+                            studyTime: 42
+                        });
+                    }, 500);
+                });
+            },
+
+            getCourses: () => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve([
+                            {
+                                id: 1,
+                                title: 'Desenvolvimento Web Completo',
+                                description: 'Aprenda HTML, CSS, JavaScript e frameworks modernos',
+                                duration: '40 horas',
+                                level: 'Iniciante',
+                                progress: 75,
+                                thumbnail: '🌐'
+                            },
+                            {
+                                id: 2,
+                                title: 'React e React Native',
+                                description: 'Desenvolvimento mobile e web com React',
+                                duration: '35 horas',
+                                level: 'Intermediário',
+                                progress: 40,
+                                thumbnail: '⚛️'
+                            },
+                            {
+                                id: 3,
+                                title: 'Node.js e APIs',
+                                description: 'Backend e desenvolvimento de APIs RESTful',
+                                duration: '30 horas',
+                                level: 'Intermediário',
+                                progress: 20,
+                                thumbnail: '🚀'
+                            },
+                            {
+                                id: 4,
+                                title: 'Python para Ciência de Dados',
+                                description: 'Análise de dados e machine learning',
+                                duration: '45 horas',
+                                level: 'Avançado',
+                                progress: 0,
+                                thumbnail: '🐍'
+                            }
+                        ]);
+                    }, 500);
+                });
+            },
+
+            getVideos: () => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve([
+                            {
+                                id: 1,
+                                title: 'Introdução ao HTML5',
+                                description: 'Nesta aula você aprenderá os fundamentos do HTML5, incluindo as principais tags semânticas, estruturação de documentos e melhores práticas para desenvolvimento web moderno.',
+                                duration: '15:30',
+                                views: 1234,
+                                likes: 89,
+                                courseId: 1,
+                                publishedAt: '2024-01-15'
+                            },
+                            {
+                                id: 2,
+                                title: 'CSS Grid Layout',
+                                description: 'Domine o CSS Grid e crie layouts complexos de forma simples e responsiva. Aprenda todas as propriedades e técnicas avançadas.',
+                                duration: '22:45',
+                                views: 987,
+                                likes: 76,
+                                courseId: 1,
+                                publishedAt: '2024-01-18'
+                            },
+                            {
+                                id: 3,
+                                title: 'JavaScript ES6+',
+                                description: 'Explore as funcionalidades modernas do JavaScript, incluindo arrow functions, destructuring, promises e async/await.',
+                                duration: '28:12',
+                                views: 1567,
+                                likes: 123,
+                                courseId: 1,
+                                publishedAt: '2024-01-20'
+                            }
+                        ]);
+                    }, 500);
+                });
+            }
+        };
+
+        // Componente de Login
+        function LoginScreen({ onLogin }) {
+            const [email, setEmail] = useState('admin@example.com');
+            const [password, setPassword] = useState('password');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                try {
+                    const response = await mockAPI.login(email, password);
+                    onLogin(response.user);
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="login-container">
+                    <div className="login-card">
+                        <div className="logo">
+                            <h1>📚</h1>
+                            <p>Learning Platform</p>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Digite seu email"
+                                    required
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Password</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Digite sua senha"
+                                    required
+                                />
+                            </div>
+                            
+                            {error && <div className="error-message">{error}</div>}
+                            
+                            <button type="submit" className="btn-primary" disabled={loading}>
+                                {loading ? 'Entrando...' : 'Entrar'}
+                            </button>
+                        </form>
+                        
+                        <div style={{marginTop: '20px', textAlign: 'center', color: '#888', fontSize: '0.9rem'}}>
+                            <p>Credenciais de teste:</p>
+                            <p>Email: admin@example.com</p>
+                            <p>Senha: password</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente do Dashboard
+        function Dashboard() {
+            const [dashboardData, setDashboardData] = useState(null);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                mockAPI.getDashboardData().then(data => {
+                    setDashboardData(data);
+                    setLoading(false);
+                });
+            }, []);
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        <p>Carregando dashboard...</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '20px', color: '#333'}}>Dashboard</h2>
+                    
+                    <div className="dashboard-cards">
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-icon primary">
+                                    <i className="fas fa-book"></i>
+                                </div>
+                                <div>
+                                    <div className="card-title">Total de Cursos</div>
+                                </div>
+                            </div>
+                            <div className="card-value">{dashboardData.totalCourses}</div>
+                            <p style={{color: '#666', fontSize: '0.9rem'}}>
+                                {dashboardData.completedCourses} concluídos
+                            </p>
+                        </div>
+                        
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-icon success">
+                                    <i className="fas fa-play"></i>
+                                </div>
+                                <div>
+                                    <div className="card-title">Vídeos</div>
+                                </div>
+                            </div>
+                            <div className="card-value">{dashboardData.totalVideos}</div>
+                            <p style={{color: '#666', fontSize: '0.9rem'}}>
+                                {dashboardData.watchedVideos} assistidos
+                            </p>
+                        </div>
+                        
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-icon warning">
+                                    <i className="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <div className="card-title">Tempo de Estudo</div>
+                                </div>
+                            </div>
+                            <div className="card-value">{dashboardData.studyTime}h</div>
+                            <p style={{color: '#666', fontSize: '0.9rem'}}>Esta semana</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente da Biblioteca
+        function Library() {
+            const [courses, setCourses] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                mockAPI.getCourses().then(data => {
+                    setCourses(data);
+                    setLoading(false);
+                });
+            }, []);
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        <p>Carregando biblioteca...</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '20px', color: '#333'}}>Biblioteca de Cursos</h2>
+                    
+                    <div className="library-grid">
+                        {courses.map(course => (
+                            <div key={course.id} className="course-card">
+                                <div className="course-thumbnail">
+                                    {course.thumbnail}
+                                </div>
+                                <div className="course-info">
+                                    <h3 className="course-title">{course.title}</h3>
+                                    <p className="course-description">{course.description}</p>
+                                    
+                                    <div className="course-meta">
+                                        <span className="course-duration">
+                                            <i className="fas fa-clock"></i> {course.duration}
+                                        </span>
+                                        <span className="course-level">{course.level}</span>
+                                    </div>
+                                    
+                                    <div className="progress-bar">
+                                        <div 
+                                            className="progress-fill" 
+                                            style={{width: `${course.progress}%`}}
+                                        ></div>
+                                    </div>
+                                    <p style={{color: '#666', fontSize: '0.8rem', marginTop: '5px'}}>
+                                        {course.progress}% concluído
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente de Vídeos
+        function Videos() {
+            const [videos, setVideos] = useState([]);
+            const [selectedVideo, setSelectedVideo] = useState(null);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                mockAPI.getVideos().then(data => {
+                    setVideos(data);
+                    setSelectedVideo(data[0]);
+                    setLoading(false);
+                });
+            }, []);
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        <p>Carregando vídeos...</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h2 style={{marginBottom: '20px', color: '#333'}}>Reprodução de Vídeo</h2>
+                    
+                    {selectedVideo && (
+                        <div style={{marginBottom: '30px'}}>
+                            <div className="video-player">
+                                <div className="play-button">
+                                    <i className="fas fa-play"></i>
+                                </div>
+                            </div>
+                            
+                            <div className="video-info">
+                                <h3 className="video-title">{selectedVideo.title}</h3>
+                                <p className="video-description">{selectedVideo.description}</p>
+                                
+                                <div className="video-meta">
+                                    <div className="meta-item">
+                                        <i className="fas fa-clock"></i>
+                                        <span>{selectedVideo.duration}</span>
+                                    </div>
+                                    <div className="meta-item">
+                                        <i className="fas fa-eye"></i>
+                                        <span>{selectedVideo.views} visualizações</span>
+                                    </div>
+                                    <div className="meta-item">
+                                        <i className="fas fa-thumbs-up"></i>
+                                        <span>{selectedVideo.likes} likes</span>
+                                    </div>
+                                    <div className="meta-item">
+                                        <i className="fas fa-calendar"></i>
+                                        <span>{selectedVideo.publishedAt}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <h3 style={{marginBottom: '20px', color: '#333'}}>Outros Vídeos</h3>
+                    <div className="library-grid">
+                        {videos.map(video => (
+                            <div 
+                                key={video.id} 
+                                className="course-card"
+                                onClick={() => setSelectedVideo(video)}
+                                style={{cursor: 'pointer'}}
+                            >
+                                <div className="course-thumbnail">
+                                    <i className="fas fa-play" style={{fontSize: '2rem'}}></i>
+                                </div>
+                                <div className="course-info">
+                                    <h3 className="course-title">{video.title}</h3>
+                                    <p className="course-description" style={{fontSize: '0.85rem'}}>
+                                        {video.description.substring(0, 100)}...
+                                    </p>
+                                    
+                                    <div className="course-meta">
+                                        <span className="course-duration">
+                                            <i className="fas fa-clock"></i> {video.duration}
+                                        </span>
+                                        <span className="course-duration">
+                                            <i className="fas fa-eye"></i> {video.views}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente Principal
+        function App() {
+            const [user, setUser] = useState(null);
+            const [activeTab, setActiveTab] = useState('dashboard');
+
+            const handleLogin = (userData) => {
+                setUser(userData);
+            };
+
+            const handleLogout = () => {
+                setUser(null);
+                setActiveTab('dashboard');
+            };
+
+            if (!user) {
+                return <LoginScreen onLogin={handleLogin} />;
+            }
+
+            const renderContent = () => {
+                switch(activeTab) {
+                    case 'dashboard':
+                        return <Dashboard />;
+                    case 'library':
+                        return <Library />;
+                    case 'videos':
+                        return <Videos />;
+                    default:
+                        return <Dashboard />;
+                }
+            };
+
+            return (
+                <div className="app-container">
+                    <div className="main-layout">
+                        <header className="header">
+                            <div className="header-logo">📚 Learning</div>
+                            <div className="user-info">
+                                <div className="avatar">
+                                    {user.name.charAt(0)}
+                                </div>
+                                <span style={{color: '#333', fontWeight: '500'}}>{user.name}</span>
+                                <button 
+                                    onClick={handleLogout}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#667eea',
+                                        cursor: 'pointer',
+                                        marginLeft: '10px'
+                                    }}
+                                >
+                                    <i className="fas fa-sign-out-alt"></i>
+                                </button>
+                            </div>
+                        </header>
+
+                        <div className="content">
+                            {renderContent()}
+                        </div>
+
+                        <nav className="bottom-nav">
+                            <div 
+                                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('dashboard')}
+                            >
+                                <i className="fas fa-home"></i>
+                                <span>Dashboard</span>
+                            </div>
+                            <div 
+                                className={`nav-item ${activeTab === 'library' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('library')}
+                            >
+                                <i className="fas fa-book"></i>
+                                <span>Biblioteca</span>
+                            </div>
+                            <div 
+                                className={`nav-item ${activeTab === 'videos' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('videos')}
+                            >
+                                <i className="fas fa-play"></i>
+                                <span>Vídeos</span>
+                            </div>
+                            <div className="nav-item">
+                                <i className="fas fa-user"></i>
+                                <span>Perfil</span>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            );
+        }
+
+        // Renderizar a aplicação
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

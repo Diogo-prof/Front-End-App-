@@ -1,0 +1,368 @@
+# Guia de Implementação - Learning Platform
+
+## 📋 Estrutura do Projeto
+
+```
+learning-platform/
+├── backend/
+│   ├── config/
+│   │   └── database.php
+│   ├── models/
+│   │   ├── User.php
+│   │   ├── Course.php
+│   │   └── Video.php
+│   ├── api/
+│   │   ├── auth.php
+│   │   ├── dashboard.php
+│   │   ├── courses.php
+│   │   └── videos.php
+│   ├── .htaccess
+│   └── composer.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   └── hooks/
+│   ├── public/
+│   └── package.json
+└── database/
+    └── schema.sql
+```
+
+## 🗄️ Configuração da Base de Dados
+
+### 1. Criar a Base de Dados
+```bash
+# Acesso ao MySQL
+mysql -u root -p
+
+# Executar o script SQL
+source /caminho/para/schema.sql
+```
+
+### 2. Configurar Conexão
+Editar `backend/config/database.php`:
+```php
+private $host = 'localhost';
+private $db_name = 'learning_platform';
+private $username = 'seu_usuario';
+private $password = 'sua_senha';
+```
+
+## 🔧 Backend - API PHP
+
+### 1. Instalação de Dependências
+```bash
+cd backend
+composer install
+```
+
+### 2. Configuração do Servidor Web
+
+#### Apache (.htaccess)
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api/$1.php [QSA,L]
+
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+```
+
+#### Nginx
+```nginx
+location /api/ {
+    try_files $uri $uri/ /api/$uri.php?$args;
+}
+
+location ~ \.php$ {
+    fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
+}
+```
+
+### 3. Estrutura das APIs
+
+#### Endpoints Disponíveis:
+- `POST /api/auth` - Autenticação
+- `GET /api/dashboard` - Dados do dashboard
+- `GET /api/courses` - Lista de cursos do utilizador
+- `GET /api/videos` - Lista de vídeos
+- `POST /api/videos` - Atualizar progresso do vídeo
+
+## 📱 Frontend - React/HTML
+
+### 1. Versão HTML (Demonstração)
+A aplicação HTML funciona diretamente no browser e inclui:
+- Interface responsiva otimizada para mobile
+- Simulação de API para demonstração
+- Design moderno com glassmorphism
+- Navegação bottom-nav estilo mobile
+
+### 2. Versão React Integrada
+Para integração com a API real:
+
+```bash
+# Instalar dependências
+npm install react react-dom
+
+# Configurar API base URL
+# Em src/services/api.js
+const baseUrl = 'http://seu-dominio.com/api';
+```
+
+### 3. Funcionalidades Implementadas
+
+#### Autenticação
+- Login com email/password
+- Gestão de tokens JWT
+- Logout automático
+
+#### Dashboard
+- Total de cursos inscritos
+- Cursos concluídos
+- Estatísticas de vídeos
+- Tempo de estudo semanal
+
+#### Biblioteca de Cursos
+- Lista de cursos do utilizador
+- Progresso visual
+- Filtros por categoria
+- Informações detalhadas
+
+#### Reprodução de Vídeos
+- Player de vídeo simulado
+- Controlo de progresso
+- Estatísticas de visualização
+- Lista de vídeos relacionados
+
+## 🚀 Deployment
+
+### 1. Ambiente de Desenvolvimento
+
+#### Backend (PHP)
+```bash
+# Usando servidor built-in do PHP
+cd backend
+php -S localhost:8000
+
+# Ou usando XAMPP/WAMP/MAMP
+# Colocar arquivos na pasta htdocs
+```
+
+#### Frontend
+```bash
+# Servir arquivos HTML estaticos
+npx http-server frontend -p 3000
+
+# Ou usar Live Server no VS Code
+```
+
+### 2. Ambiente de Produção
+
+#### Servidor Web (Apache/Nginx)
+1. **Upload dos arquivos**:
+   - Backend → `/var/www/html/api/`
+   - Frontend → `/var/www/html/`
+
+2. **Configurar Virtual Host**:
+```apache
+<VirtualHost *:80>
+    ServerName seu-dominio.com
+    DocumentRoot /var/www/html
+    
+    <Directory "/var/www/html">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+3. **Permissões**:
+```bash
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+```
+
+#### Base de Dados
+1. **Criar utilizador de produção**:
+```sql
+CREATE USER 'learning_user'@'localhost' IDENTIFIED BY 'senha_segura';
+GRANT ALL PRIVILEGES ON learning_platform.* TO 'learning_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+2. **Backup e Restore**:
+```bash
+# Backup
+mysqldump -u root -p learning_platform > backup.sql
+
+# Restore
+mysql -u root -p learning_platform < backup.sql
+```
+
+## 🔒 Segurança
+
+### 1. Autenticação JWT
+```php
+// Implementar JWT real
+composer require firebase/php-jwt
+
+// No login
+$payload = array(
+    "user_id" => $user->id,
+    "exp" => time() + (60 * 60 * 24) // 24 horas
+);
+$jwt = JWT::encode($payload, $secret_key, 'HS256');
+```
+
+### 2. Validação de Dados
+```php
+// Sanitizar inputs
+$email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+$password = htmlspecialchars($_POST['password']);
+
+// Validar dados
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // Erro de validação
+}
+```
+
+### 3. Prevenção de SQL Injection
+```php
+// Sempre usar prepared statements
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->execute([$email]);
+```
+
+## 📊 Otimizações
+
+### 1. Performance do Backend
+- **Caching**: Implementar Redis/Memcached
+- **Índices**: Criar índices nas queries frequentes
+- **Paginação**: Limitar resultados das consultas
+- **Compressão**: Ativar gzip no servidor
+
+### 2. Performance do Frontend
+- **Minificação**: Comprimir CSS/JS
+- **CDN**: Usar CDN para recursos estáticos
+- **Lazy Loading**: Carregar conteúdo sob demanda
+- **Service Workers**: Cache offline
+
+### 3. Monitorização
+- **Logs**: Configurar logs de erro
+- **Analytics**: Implementar tracking de uso
+- **Uptime**: Monitorizar disponibilidade
+- **Performance**: Métricas de tempo de resposta
+
+## 🧪 Testes
+
+### 1. Testes da API
+```bash
+# Testar endpoints com curl
+curl -X POST http://localhost:8000/api/auth \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"password"}'
+```
+
+### 2. Testes do Frontend
+```javascript
+// Testes unitários com Jest
+npm install --save-dev jest @testing-library/react
+
+// Testes de integração
+npm install --save-dev cypress
+```
+
+## 📝 Documentação da API
+
+### Endpoints
+
+#### POST /api/auth
+**Descrição**: Autenticação do utilizador
+**Body**:
+```json
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+```
+**Response**:
+```json
+{
+  "message": "Login successful",
+  "token": "jwt_token_aqui",
+  "user": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@example.com"
+  }
+}
+```
+
+#### GET /api/dashboard
+**Descrição**: Dados do dashboard do utilizador
+**Headers**: `Authorization: Bearer {token}`
+**Response**:
+```json
+{
+  "totalCourses": 24,
+  "completedCourses": 8,
+  "totalVideos": 156,
+  "watchedVideos": 45,
+  "studyTime": 42
+}
+```
+
+## 🔄 Versionamento e Manutenção
+
+### 1. Git Workflow
+```bash
+# Branches principais
+main        # Produção
+develop     # Desenvolvimento
+feature/*   # Novas funcionalidades
+hotfix/*    # Correções urgentes
+```
+
+### 2. Deploy Automático
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to server
+        run: rsync -avz . user@server:/var/www/html/
+```
+
+### 3. Backup Automático
+```bash
+#!/bin/bash
+# backup.sh
+DATE=$(date +%Y%m%d_%H%M%S)
+mysqldump -u user -p password learning_platform > backup_$DATE.sql
+tar -czf app_backup_$DATE.tar.gz /var/www/html/
+```
+
+## 📞 Suporte e Manutenção
+
+### Logs de Erro
+- Backend: `/var/log/apache2/error.log`
+- PHP: `error_log()` function
+- Frontend: Browser console
+
+### Troubleshooting Comum
+1. **CORS Error**: Verificar headers no .htaccess
+2. **Database Connection**: Verificar credenciais
+3. **Token Expired**: Implementar refresh token
+4. **Performance**: Verificar queries SQL
