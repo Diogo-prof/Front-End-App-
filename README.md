@@ -8,7 +8,7 @@ Este projeto é uma aplicação web desenvolvida com o objetivo de ser usada par
         <li>Frontend: React.js</li>
         <li>Backend: PHP</li>
         <li>Base de Dados: MySQL / MariaDB</li>
-        <li>Outras tecnologias: Javascript e Docker</li>
+        <li>Outras tecnologias: Javascript</li>
     </ul>
 
 <h3>⚙️ Funcionalidades</h3>
